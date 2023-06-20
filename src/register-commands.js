@@ -386,6 +386,29 @@ const commands = [
             }
         ]
     },
+    {
+        name: "fish",
+        description: "♥"
+    },
+    {
+        name: "zbot",
+        description: "zBot key info",
+        options: [
+            {
+                name: "linked",
+                description: "Key status. -1 = Nonexistent; responds with a HWID if linked",
+                type: 1,
+                options: [
+                    {
+                        name: "key",
+                        description: "Key to check",
+                        type: ApplicationCommandOptionType.String,
+                        required: true
+                    }
+                ]
+            }
+        ]
+    }
 ];
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);

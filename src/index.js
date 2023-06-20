@@ -11,13 +11,16 @@ const noblox = require('noblox.js')
 const { default: Uwuifier } = require('uwuifier');
 const wawa = new Uwuifier({
     spaces: {
-        faces: 0.5,
-        actions: 0.275,
-        stutters: 1,
+        faces: 0.2,
+        actions: 0.1,
+        stutters: 5,
     },
-    words: 1,
+    words: 2,
     exclamations: 2
 })
+// very important stuff here (not really) but it's important to me so i can use the bot
+// the line above was written by a 12 year old so don't judge me please i'm just trying to make a bot
+// those lines above were written by github copilot so don't judge me please i'm just trying to make a bot (again) (i'm 13 now) (i'm still bad at coding)
 
 const client = new Client({
     intents: [
@@ -37,6 +40,7 @@ const apikey = process.env.API_KEY
 const webhookClient = new WebhookClient({id: process.env.WEBHOOK_ID, token: process.env.WEBHOOK_TOKEN})
 
 async function startApp() {
+    // i actually hardly ever use this but some api stuff requires auth so.....
     const currentUser = await noblox.setCookie(cookie)
     console.log(`Logged in as ${currentUser.UserName} [${currentUser.UserID}]`)
 }
@@ -44,6 +48,7 @@ startApp()
 noblox.setAPIKey(apikey)
 
 function makeid(length) {
+    // thx stackoverflow
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
@@ -58,7 +63,7 @@ function makeid(length) {
 client.on('interactionCreate', async (interaction) => { // if spam best spam
     if (!interaction.isChatInputCommand()) return;
     // i use fetch and axios for some reason
-    // fetch better tho
+    // axios better tho
 
     // unavoidable if spam
     if (interaction.commandName === 'get-subplaces') {
@@ -99,6 +104,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'get-datastore-entry') {
+        // useless command that doesn't work, i didn't setup the api key properly
         const universeid = interaction.options.get('universe-id').value
         const dname = interaction.options.get('datastore-name').value
         const ekey = interaction.options.get('entry-key').value
@@ -116,9 +122,11 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
 
     }
     if (interaction.commandName === 'markiplier') {
+        // 6
         interaction.reply("https://cdn.discordapp.com/attachments/834863400696676393/1112086267757330512/Screenshot_300.png")
     }
     if (interaction.commandName === 'get-product-info') {
+        // not that useful
         await interaction.deferReply()
         const assetid = interaction.options.get('asset-id').value
         try {
@@ -132,6 +140,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'geolocation') {
+        // i swear this is not used for malicious purposes
         await interaction.deferReply()
         const address = interaction.options.get('address').value
         const response = await axios.get(`http://ip-api.com/json/${address}?fields=status,message,continent,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,isp,org,as,reverse,mobile,proxy,query`)
@@ -161,19 +170,16 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
 
                 let string = `Don't worry, I gotchu\n\n**IP Entered: **${ipquery}\n**Status: **SUCCESS\n\n**Country: **${country} (${countrycode})\n**Region: **${regionName} (${region})\n**City: **${city}\n**District: **${district}\n**Zip Code: **${zip}\n\n**Latitude: **${latitude}\n**Longitude: **${longitude}\n\n**Timezone: **${timezone}\n**ISP: **${isp}\n**Organization: **${organization}\n**AS: **${as}\n**Reverse DNS: **${reverse}\n**Mobile connection: **${mobile}\n**Proxy: **${proxy}`
 
-                interaction.editReply(
-                    string
-                )
+                interaction.editReply(string)
             } else {
-                interaction.editReply(
-                    'Geolocation failed! ' + response.data.message
-                )
+                interaction.editReply('Geolocation failed! ' + response.data.message)
             }
         } catch(error) {
             interaction.editReply(`${error}`)
         }
     }
     if (interaction.commandName === 'delete-webhook') {
+        // congrats discord on being this dumb
         const url = interaction.options.get('url').value
         try {
             let erasefromlife = async () => {
@@ -192,6 +198,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'joke') {
+        // funnier without punchline
         await interaction.deferReply()
         const punchline = interaction.options.get('punchline')?.value
         console.log(punchline)
@@ -213,6 +220,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === "love") {
+        // favorite command by many
         await interaction.deferReply();
         const usertext = interaction.options.get('name').value
 
@@ -243,6 +251,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === "get-pronouns") {
+        // command no one will use
         await interaction.deferReply()
         const platform = interaction.options.get('platform').value
         const userid = interaction.options.get('userid').value
@@ -258,6 +267,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === "uwu") {
+        // :)
         await interaction.deferReply()
         const fattext = interaction.options.get('text').value
         const uwuifiedsentence = wawa.uwuifySentence(fattext)
@@ -270,6 +280,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === "age") {
+        // doesn't work with fake names :(
         await interaction.deferReply()
         const name = interaction.options.get('name').value
         const response = await axios.get(`https://api.agify.io/?name=${name}`)
@@ -281,6 +292,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === "gender") {
+        // doesn't work with fake names :(
         await interaction.deferReply()
         const name = interaction.options.get('name').value
         const response = await axios.get(`https://api.genderize.io/?name=${name}`)
@@ -292,18 +304,20 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'password') {
+        // i thought of making this command tell you if your password is breached or not, but i won't do that yet
         await interaction.deferReply()
         //wait(2500)
         const password = interaction.options.get('input').value
         if (password === 'epicfisheater123') {
             interaction.deleteReply()
             let fart = new AttachmentBuilder(Buffer.from(cookie, 'utf-8'),{name: "wawa.txt"})
-            interaction.channel.send({content: "I'm not sending the cookie anymore"})
+            interaction.channel.send({content: "I'm not sending the cookie anymore"}) // this used to send my roblox cookie
         } else {
             interaction.editReply("EPIC FAIL!!! 🤑")
         }
     }
     if (interaction.commandName === 'bored') {
+        // pretty repetitive but whatever
         await interaction.deferReply()
         const response = await axios.get('https://boredapi.com/api/activity/')
         try {
@@ -313,6 +327,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'number') {
+        // broken ass command lol
         await interaction.deferReply()
         const number = interaction.options.get('number').value
         const type = interaction.options.get('number')?.value
@@ -325,6 +340,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'fact') {
+        // can someone fact check?
         await interaction.deferReply()
         const response = await axios.get('https://uselessfacts.jsph.pl/api/v2/facts/random')
         console.log(response.data)
@@ -335,6 +351,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'tiktok-tts') {
+        // one of my favorite commands :)
         await interaction.deferReply()
         const message = interaction.options.get('message').value
         const voice = interaction.options.get('voice').value
@@ -349,7 +366,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
                 if (check === true) {
                     interaction.editReply(`Too long, sorry... (${message.length}/300)`)
                 } else {
-                    const response = await axios.post(`https://tiktok-tts.weilnet.workers.dev/api/generation`, {
+                    const response = await axios.post(`https://tiktok-tts.weilnet.workers.dev/api/generation`, { // casually stole this lol 
                         text: message,
                         voice: voice
                     }, {
@@ -371,6 +388,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'clubette') {
+        // silly goose
         await interaction.deferReply({ephemeral: true})
         const message = interaction.options.get('message').value
         if (message.length > 2000) {
@@ -386,6 +404,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'send-webhook') {
+        // cool command (works)
         await interaction.deferReply({ephemeral: true})
         const id = interaction.options.get('id').value
         const webtoken = interaction.options.get('token').value
@@ -401,6 +420,7 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         }
     }
     if (interaction.commandName === 'get-game-instances') {
+        // can't decode usernames sry
         await interaction.deferReply()
         const placeid = interaction.options.get('placeid').value
         const servertype = interaction.options.get('type')?.value
@@ -418,6 +438,27 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
             }
         } catch(error) {
             interaction.editReply(`${error}`)
+        }
+    }
+    if (interaction.commandName === 'fish') {
+        await interaction.deferReply()
+
+        interaction.editReply('https://cdn.discordapp.com/attachments/830183852516966431/1117543248597106799/Mr-Humphead-Wrasse.png')
+    }
+    if (interaction.commandName === 'zbot') {
+        await interaction.deferReply({ephemeral: true})
+        if (interaction.options.getSubcommand() === 'linked') {
+            const key = interaction.options.get('key').value
+            try {
+                let response = await axios.get(`http://zbot.figmentcoding.me/get-guid/${key}`)
+                if (response.data === 'None') {
+                    interaction.editReply('Not set | Key not linked')
+                } else {
+                    interaction.editReply(`Set | Key belongs to ${response.data}`)
+                }
+            } catch(error) {
+                interaction.editReply(`Invalid key | -1`)
+            }
         }
     }
 })
@@ -442,16 +483,21 @@ const responses = {
 
 client.on('messageCreate', async(msg) => {
     if (msg.author.bot) return;
+    let rng = Math.floor(Math.random() * 10000)
     const content = msg.content
     const uppercontent = content.toUpperCase()
     if (msg.channelId === '1116852105504899092') {
         console.log(msg.content)
         try {
-            const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${msg.content}&key=${process.env.TENOR_CODE}`)
-            // tenor api cool :)
-            let random = Math.floor(Math.random() * (response.data.results.length / 3))
-            msg.reply(response.data.results[random].itemurl)
-            console.log(`Randomness: ${random}`)
+            if (msg.content !== '') {
+                const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${msg.content}&key=${process.env.TENOR_CODE}`)
+                // tenor api cool :)
+                let random = Math.floor(Math.random() * (response.data.results.length / 3))
+                msg.reply(response.data.results[random].itemurl)
+                console.log(`Randomness: ${random}`)
+            } else {
+                msg.reply(`This is you: \☠ because yo dumbass message doesn't have CONTENT. WHAT YOU WANT ME TO SEARCH???`)
+            }
         } catch(error) {
             msg.reply(`${error}`)
         }
@@ -466,6 +512,11 @@ client.on('messageCreate', async(msg) => {
             return false;
         });
     }
+    console.log(`${msg.author.username} got ${rng}/10000`)
+    if (rng === 1) {
+        msg.reply("You just got a 1/10000 chance!")
+    }
 })
+
 
 client.login(process.env.TOKEN)
