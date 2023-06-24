@@ -408,6 +408,22 @@ const commands = [
                 ]
             }
         ]
+    },
+    {
+        name: "bot-speak",
+        description: "[STAFF-ONLY] Make the bot say something",
+        options: [
+            {
+                name: "message",
+                description: "What to make the bot say",
+                type: ApplicationCommandOptionType.String,
+                required: true
+            }
+        ]
+    },
+    {
+        name: "ping",
+        description: "Pong!"
     }
 ];
 

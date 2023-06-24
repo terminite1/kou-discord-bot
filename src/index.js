@@ -1,4 +1,9 @@
+var start = Date.now();
+
 require('dotenv').config();
+
+////////////// IMPORTS/CONSTANTS START HERE //////////////
+
 const {
     Client,
     IntentsBitField,
@@ -6,21 +11,23 @@ const {
     AttachmentBuilder,
     WebhookClient
 } = require('discord.js');
+
 const axios = require('axios')
+
 const noblox = require('noblox.js')
-const { default: Uwuifier } = require('uwuifier');
+
+const {
+    default: Uwuifier
+} = require('uwuifier');
 const wawa = new Uwuifier({
     spaces: {
-        faces: 0.2,
-        actions: 0.1,
-        stutters: 5,
+        faces: 0.5,
+        actions: 0.5,
+        stutters: 0.25,
     },
     words: 2,
-    exclamations: 2
+    exclamations: 4
 })
-// very important stuff here (not really) but it's important to me so i can use the bot
-// the line above was written by a 12 year old so don't judge me please i'm just trying to make a bot
-// those lines above were written by github copilot so don't judge me please i'm just trying to make a bot (again) (i'm 13 now) (i'm still bad at coding)
 
 const client = new Client({
     intents: [
@@ -30,14 +37,31 @@ const client = new Client({
     ],
 });
 
-client.on('ready', async (c) => {
-    console.log("yipee the bot is online");
-});
+const cookie = process.env.COOKIE // important
+const apikey = process.env.API_KEY // important
 
-const cookie = process.env.COOKIE
-const apikey = process.env.API_KEY
+const webhookClient = new WebhookClient({
+    id: process.env.WEBHOOK_ID,
+    token: process.env.WEBHOOK_TOKEN
+})
 
-const webhookClient = new WebhookClient({id: process.env.WEBHOOK_ID, token: process.env.WEBHOOK_TOKEN})
+
+////////////// FUNCTIONS START HERE //////////////
+
+function makeid(length) {
+    // thx stackoverflow
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        counter += 1;
+    }
+    return result;
+}
+
+////////////////////////////
 
 async function startApp() {
     // i actually hardly ever use this but some api stuff requires auth so.....
@@ -47,18 +71,16 @@ async function startApp() {
 startApp()
 noblox.setAPIKey(apikey)
 
-function makeid(length) {
-    // thx stackoverflow
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    let counter = 0;
-    while (counter < length) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-      counter += 1;
-    }
-    return result;
-}
+////////////////////////////
+
+
+client.on('ready', async (c) => {
+    console.log("yipee the bot is online");
+    var delta = (Date.now() - start) / 1000
+    console.log(`${delta} seconds to start`)
+});
+
+////////////// COMMANDS START HERE //////////////
 
 client.on('interactionCreate', async (interaction) => { // if spam best spam
     if (!interaction.isChatInputCommand()) return;
@@ -94,12 +116,17 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
                         "x-csrf-token": csrf
                     }
                 })
-                let finaldata = new AttachmentBuilder(Buffer.from(JSON.stringify(response2.data.data,null,2), "utf-8"),{name: `subplaces-${placeid}.json`})
-                interaction.channel.send({files: [finaldata], content: `All done! There are: **${response2.data.data.length} places** total for the game '**${response.data[0].name}**'`})
+                let finaldata = new AttachmentBuilder(Buffer.from(JSON.stringify(response2.data.data, null, 2), "utf-8"), {
+                    name: `subplaces-${placeid}.json`
+                })
+                interaction.channel.send({
+                    files: [finaldata],
+                    content: `All done! There are: **${response2.data.data.length} places** total for the game '**${response.data[0].name}**'`
+                })
                 interaction.deleteReply()
             }
-            
-        } catch(error) {
+
+        } catch (error) {
             console.log(error)
         }
     }
@@ -131,10 +158,15 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         const assetid = interaction.options.get('asset-id').value
         try {
             const productInfo = await noblox.getProductInfo(assetid)
-            const atc = new AttachmentBuilder(Buffer.from(JSON.stringify(productInfo,null,2), 'utf-8'),{name: `info-${assetid}.json`})
-            interaction.channel.send({files: [atc], content:`Asset ID: ${assetid} (${interaction.user.username})`})
+            const atc = new AttachmentBuilder(Buffer.from(JSON.stringify(productInfo, null, 2), 'utf-8'), {
+                name: `info-${assetid}.json`
+            })
+            interaction.channel.send({
+                files: [atc],
+                content: `Asset ID: ${assetid} (${interaction.user.username})`
+            })
             interaction.deleteReply()
-        } catch(error) {
+        } catch (error) {
             interaction.channel.send(`${error}`)
             interaction.deleteReply()
         }
@@ -174,10 +206,12 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
             } else {
                 interaction.editReply('Geolocation failed! ' + response.data.message)
             }
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
     if (interaction.commandName === 'delete-webhook') {
         // congrats discord on being this dumb
         const url = interaction.options.get('url').value
@@ -197,6 +231,8 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
             interaction.reply(`${error}`)
         }
     }
+
+
     if (interaction.commandName === 'joke') {
         // funnier without punchline
         await interaction.deferReply()
@@ -219,27 +255,30 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === "love") {
         // favorite command by many
         await interaction.deferReply();
         const usertext = interaction.options.get('name').value
 
         const options = {
-          method: 'GET',
-          url: 'https://love-calculator.p.rapidapi.com/getPercentage',
-          params: {
-            sname: makeid(16),
-            fname: usertext 
-          },
-          headers: {
-            'X-RapidAPI-Key': process.env.XRAPID_API_KEY,
-            'X-RapidAPI-Host': 'love-calculator.p.rapidapi.com'
-          }
+            method: 'GET',
+            url: 'https://love-calculator.p.rapidapi.com/getPercentage',
+            params: {
+                sname: makeid(16),
+                fname: usertext
+            },
+            headers: {
+                'X-RapidAPI-Key': process.env.XRAPID_API_KEY,
+                'X-RapidAPI-Host': 'love-calculator.p.rapidapi.com'
+            }
         };
         try {
             const response = await axios.request(options);
             const result = await response;
-            const string = `Your compatibility with **${usertext}** is: **${result.data.percentage}**% - *${result.data.result}*\nRequest: ${usertext} ${result.data.sname}` 
+            const string = `Your compatibility with **${usertext}** is: **${result.data.percentage}**% - *${result.data.result}*\nRequest: ${usertext} ${result.data.sname}`
             console.log(result.data)
             if (string.length >= 2000) {
                 interaction.editReply("Fuck you dolphin")
@@ -247,9 +286,12 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
                 interaction.editReply(string)
             }
         } catch (error) {
-            interaction.editReply   (`${error}`);
+            interaction.editReply(`${error}`);
         }
     }
+
+
+
     if (interaction.commandName === "get-pronouns") {
         // command no one will use
         await interaction.deferReply()
@@ -260,12 +302,14 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
             const response = await axios.get(`https://pronoundb.org/api/v2/lookup?platform=${platform}&ids=${userid}`)
             console.log(response.data)
             console.log(JSON.stringify(response.data))
-            interaction.editReply('You want to look for: "en: []" ('+ userid + ')```json\n' + JSON.stringify(response.data,null,2) + '```' + JSON.stringify(response.data).userid + userid)
+            interaction.editReply('You want to look for: "en: []" (' + userid + ')```json\n' + JSON.stringify(response.data, null, 2) + '```' + JSON.stringify(response.data).userid + userid)
 
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
     if (interaction.commandName === "uwu") {
         // :)
         await interaction.deferReply()
@@ -279,6 +323,9 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
             console.log(`${uwuifiedsentence.length} -- Short enough`)
         }
     }
+
+
+
     if (interaction.commandName === "age") {
         // doesn't work with fake names :(
         await interaction.deferReply()
@@ -287,10 +334,13 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         console.log(response.data)
         try {
             interaction.editReply(`**${response.data.name}** is ${response.data.age} years old`)
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === "gender") {
         // doesn't work with fake names :(
         await interaction.deferReply()
@@ -299,10 +349,13 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         console.log(response.data)
         try {
             interaction.editReply(`**${name}** is probably a **${response.data.gender}**. (**${response.data.probability * 100}**% sure)`)
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === 'password') {
         // i thought of making this command tell you if your password is breached or not, but i won't do that yet
         await interaction.deferReply()
@@ -310,22 +363,32 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         const password = interaction.options.get('input').value
         if (password === 'epicfisheater123') {
             interaction.deleteReply()
-            let fart = new AttachmentBuilder(Buffer.from(cookie, 'utf-8'),{name: "wawa.txt"})
-            interaction.channel.send({content: "I'm not sending the cookie anymore"}) // this used to send my roblox cookie
+            let fart = new AttachmentBuilder(Buffer.from(cookie, 'utf-8'), {
+                name: "wawa.txt"
+            })
+            interaction.channel.send({
+                content: "I'm not sending the cookie anymore"
+            }) // this used to send my roblox cookie
         } else {
             interaction.editReply("EPIC FAIL!!! 🤑")
         }
     }
+
+
+
     if (interaction.commandName === 'bored') {
         // pretty repetitive but whatever
         await interaction.deferReply()
         const response = await axios.get('https://boredapi.com/api/activity/')
         try {
             interaction.editReply(`You should ${response.data.activity.toLowerCase()}!`)
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === 'number') {
         // broken ass command lol
         await interaction.deferReply()
@@ -335,10 +398,13 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         console.log(response)
         try {
             interaction.editReply(`${response.data}`)
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === 'fact') {
         // can someone fact check?
         await interaction.deferReply()
@@ -346,17 +412,20 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         console.log(response.data)
         try {
             interaction.editReply(`${response.data.text}`)
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === 'tiktok-tts') {
         // one of my favorite commands :)
         await interaction.deferReply()
         const message = interaction.options.get('message').value
         const voice = interaction.options.get('voice').value
         let check = (message.length >= 300)
-        
+
         try {
             const status = await axios.get('https://tiktok-tts.weilnet.workers.dev/api/status')
             const statuscheck = status.data.success
@@ -376,49 +445,74 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
                     })
                     console.log(`${interaction.user.username} requests audio file: data:audio/mpeg;base64,${response.data.data}`)
                     // fucking bitch line below took me an hour to make
-                    let atc = new AttachmentBuilder(Buffer.from(response.data.data.replace('data:audio/ogg; codecs:opus;base64,', ''), 'base64'), { name: `${interaction.user.username}_${makeid(16)}.mp3`})
-                    interaction.channel.send({files: [atc], content: `Aight buh, whatever you say (${message.length}/300)\nVoice Selected: ${voice}\nYour input: *${message}*`})
+                    let atc = new AttachmentBuilder(Buffer.from(response.data.data.replace('data:audio/ogg; codecs:opus;base64,', ''), 'base64'), {
+                        name: `${interaction.user.username}_${makeid(16)}.mp3`
+                    })
+                    interaction.channel.send({
+                        files: [atc],
+                        content: `Aight buh, whatever you say (${message.length}/300)\nVoice Selected: ${voice}\nYour input: *${message}*`
+                    })
                     interaction.deleteReply()
                 }
             } else {
                 interaction.channel.send("Yo, the API is offline. Guhh???")
             }
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === 'clubette') {
         // silly goose
-        await interaction.deferReply({ephemeral: true})
+        await interaction.deferReply({
+            ephemeral: true
+        })
         const message = interaction.options.get('message').value
         if (message.length > 2000) {
             interaction.editReply("You're a silly little buddy if you think I'm gonna send that")
         } else {
             try {
-                webhookClient.send({content: message})
+                webhookClient.send({
+                    content: message
+                })
                 console.log(`${interaction.user.username}#${interaction.user.discriminator} said: ${message}`)
                 interaction.editReply("Submitted!")
-            } catch(error) {
+            } catch (error) {
                 interaction.editReply(`Something went wrong: ${error}`)
             }
         }
     }
+
+
+
     if (interaction.commandName === 'send-webhook') {
         // cool command (works)
-        await interaction.deferReply({ephemeral: true})
+        await interaction.deferReply({
+            ephemeral: true
+        })
         const id = interaction.options.get('id').value
         const webtoken = interaction.options.get('token').value
         const message = interaction.options.get('message').value
-        
-        const finalwebhook = new WebhookClient({id: id, token: webtoken})
+
+        const finalwebhook = new WebhookClient({
+            id: id,
+            token: webtoken
+        })
         try {
             console.log(`${interaction.user.username}#${interaction.user.discriminator} requests to send ${message} to ${id},${webtoken}`)
-            finalwebhook.send({content: message})
+            finalwebhook.send({
+                content: message
+            })
             interaction.editReply("Submitted")
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === 'get-game-instances') {
         // can't decode usernames sry
         await interaction.deferReply()
@@ -426,27 +520,45 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
         const servertype = interaction.options.get('type')?.value
         try {
             if (servertype === undefined) {
-                const servers = await noblox.getGameInstances(placeid,"Public")
-                const attachment = new AttachmentBuilder(Buffer.from(JSON.stringify(servers,null,2), "utf-8"),{name: `servers-${placeid}-${"PUBLIC"}.json`})
-                interaction.channel.send({files: [attachment], content: `Here you go 🐟🐟🐟`})
+                const servers = await noblox.getGameInstances(placeid, "Public")
+                const attachment = new AttachmentBuilder(Buffer.from(JSON.stringify(servers, null, 2), "utf-8"), {
+                    name: `servers-${placeid}-${"PUBLIC"}.json`
+                })
+                interaction.channel.send({
+                    files: [attachment],
+                    content: `Here you go 🐟🐟🐟`
+                })
                 interaction.deleteReply()
-            } else { 
-                const servers = await noblox.getGameInstances(placeid,servertype)
-                const attachment = new AttachmentBuilder(Buffer.from(JSON.stringify(servers,null,2), "utf-8"),{name: `servers-${placeid}-${servertype.toUpperCase()}.json`})
-                interaction.channel.send({files: [attachment], content: `Here you go 🐟🐟🐟`})
+            } else {
+                const servers = await noblox.getGameInstances(placeid, servertype)
+                const attachment = new AttachmentBuilder(Buffer.from(JSON.stringify(servers, null, 2), "utf-8"), {
+                    name: `servers-${placeid}-${servertype.toUpperCase()}.json`
+                })
+                interaction.channel.send({
+                    files: [attachment],
+                    content: `Here you go 🐟🐟🐟`
+                })
                 interaction.deleteReply()
             }
-        } catch(error) {
+        } catch (error) {
             interaction.editReply(`${error}`)
         }
     }
+
+
+
     if (interaction.commandName === 'fish') {
         await interaction.deferReply()
 
         interaction.editReply('https://cdn.discordapp.com/attachments/830183852516966431/1117543248597106799/Mr-Humphead-Wrasse.png')
     }
+
+
+
     if (interaction.commandName === 'zbot') {
-        await interaction.deferReply({ephemeral: true})
+        await interaction.deferReply({
+            ephemeral: true
+        })
         if (interaction.options.getSubcommand() === 'linked') {
             const key = interaction.options.get('key').value
             try {
@@ -456,12 +568,49 @@ client.on('interactionCreate', async (interaction) => { // if spam best spam
                 } else {
                     interaction.editReply(`Set | Key belongs to ${response.data}`)
                 }
-            } catch(error) {
+            } catch (error) {
                 interaction.editReply(`Invalid key | -1`)
             }
         }
     }
+
+
+
+    if (interaction.commandName === 'bot-speak') {
+        await interaction.deferReply({
+            ephemeral: true
+        })
+        if (interaction.user.id === '247074510614953985') {
+            const message = interaction.options.get('message').value
+            if (message.length > 2000) {
+                interaction.editReply("Too long, try again")
+            } else {
+                try {
+                    interaction.channel.send({
+                        content: message
+                    })
+                    interaction.editReply("Submitted!")
+                } catch (error) {
+                    interaction.editReply(`Something went wrong: ${error}`)
+                }
+            }
+        } else {
+            interaction.editReply("You're not allowed to use this command")
+        }
+    }
+
+
+    if (interaction.commandName === 'ping') {
+        await interaction.deferReply()
+        // calculate the time it takes to send a message
+        const sent = await interaction.channel.send('Pinging...');
+        const timeDiff = (sent.editedAt || sent.createdAt) - (interaction.editedAt || interaction.createdAt);
+        await interaction.editReply(`Pong! This message had a latency of ${timeDiff}ms.`);
+        sent.delete();
+    }
 })
+
+////////////// COMMANDS ENDS HERE //////////////
 
 let funny_strings = [
     'fart',
@@ -469,8 +618,12 @@ let funny_strings = [
     'fnm04',
     'dolphin',
     'noob',
-    'patrick'
+    'patrick',
+    'kou',
+    '776476163441950790'
 ]
+
+// is github copilot good? 
 
 const responses = {
     fart: 'Woah buddy, did you just say fart? You can`t say that, man',
@@ -478,14 +631,18 @@ const responses = {
     fnm04: 'https://cdn.discordapp.com/attachments/1041057118503043193/1113449776705454180/image.png',
     dolphin: 'https://tenor.com/view/dolphin-muzzle-gif-27683039',
     noob: 'https://tenor.com/view/pro-vs-noob-cod-king22-gru-irl-gru-cosplay-and-cartoon-gif-16819849',
-    patrick: 'https://cdn.discordapp.com/attachments/834863400696676393/1116846661763858432/patrick.png'
+    patrick: 'https://cdn.discordapp.com/attachments/834863400696676393/1116846661763858432/patrick.png',
+    kou: 'WHAT YOU WANT BITCH!'
 };
 
-client.on('messageCreate', async(msg) => {
+/////////////// Message Create Section ///////////////
+
+client.on('messageCreate', async (msg) => {
     if (msg.author.bot) return;
     let rng = Math.floor(Math.random() * 10000)
     const content = msg.content
     const uppercontent = content.toUpperCase()
+
     if (msg.channelId === '1116852105504899092') {
         console.log(msg.content)
         try {
@@ -498,7 +655,7 @@ client.on('messageCreate', async(msg) => {
             } else {
                 msg.reply(`This is you: \☠ because yo dumbass message doesn't have CONTENT. WHAT YOU WANT ME TO SEARCH???`)
             }
-        } catch(error) {
+        } catch (error) {
             msg.reply(`${error}`)
         }
 
@@ -518,5 +675,23 @@ client.on('messageCreate', async(msg) => {
     }
 })
 
+/////////////// Message Create Section ///////////////
+
+
+/*
+client.on('messageDelete', async (msg) => { // deleted message logger basically, couldn't get it to work with webhooks...
+    let check = msg.author.id === '776476163441950790'
+    const usersays = `**${msg.author.username}#${msg.author.discriminator}**: `
+    if (!(msg.length >= 2000) && !(check)) {
+        msg.channel.send({
+            content: `${usersays}${msg.content}`
+        })
+    } else {
+        msg.channel.send({
+            content: `${msg.author.username}:[Message Invalid]`
+        })
+    }
+})
+*/
 
 client.login(process.env.TOKEN)
